@@ -8,6 +8,10 @@ Elevation of Privilege (EoP) is the easy way to get started and learn threat mod
 
 The deployed version can be found here: https://elevation-of-privilege.herokuapp.com/
 
+## Get it running on Heroku
+- Create account at travis-ci.com and link it to the elevation-of-privilege Github project
+
+
 ## Running
 There are two components that need to be started in order to run the game.
 1. Server
