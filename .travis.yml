@@ -1,43 +1,46 @@
 matrix:
   include:
-    - language: node_js
-      node_js:
-      - "10"
-      cache:
-        directories:
-        - node_modules
-      install:
-      - rm -rf node_modules/*/.git/
-      - npm install -q --no-color --no-progress
-      before_script:
-      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-      - chmod +x ./cc-test-reporter
-      - ./cc-test-reporter before-build
-      script:
-      - npm run test -- --coverage --watchAll=false
-      after_script:
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-    - dist: trusty
-      stage: build and deploy docker image
-      services:
-        - docker
-      if: tag IS present
-      env:
-        - COMMIT=${TRAVIS_COMMIT::8}
-        - REPO=okhalid/eop
-      before_install:
-        - wget -qO- https://toolbelt.heroku.com/install.sh | sh
-        - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-        - echo "$HEROKU_API_KEY" | docker login -u "$HEROKU_USER" --password-stdin registry.heroku.com
-      script:
-        - docker build -f heroku/Dockerfile -t $REPO:$COMMIT .
-        - docker tag $REPO:$COMMIT $REPO:latest
-        - docker tag $REPO:$COMMIT $REPO:$TRAVIS_TAG
-        - docker tag $REPO:$COMMIT $REPO:$TRAVIS_TAG
-        - docker tag $REPO:$COMMIT registry.heroku.com/$HEROKU_APP_NAME/web
-        - docker push $REPO
-        - docker push registry.heroku.com/$HEROKU_APP_NAME/web
-        - heroku container:release web --app $HEROKU_APP_NAME
-
+  - language: node_js
+    node_js:
+    - '10'
+    cache:
+      directories:
+      - node_modules
+    install:
+    - rm -rf node_modules/*/.git/
+    - npm install -q --no-color --no-progress
+    before_script:
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+      > ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - "./cc-test-reporter before-build"
+    script:
+    - npm run test -- --coverage --watchAll=false
+    after_script:
+    - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
+  - dist: trusty
+    stage: build and deploy docker image
+    services:
+    - docker
+    if: tag IS present
+    env:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - REPO=okhalid/eop
+    before_install:
+    - wget -qO- https://toolbelt.heroku.com/install.sh | sh
+    - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+    - echo "$HEROKU_API_KEY" | docker login -u "$HEROKU_USER" --password-stdin registry.heroku.com
+    script:
+    - docker build -f heroku/Dockerfile -t $REPO:$COMMIT .
+    - docker tag $REPO:$COMMIT $REPO:latest
+    - docker tag $REPO:$COMMIT $REPO:$TRAVIS_TAG
+    - docker tag $REPO:$COMMIT $REPO:$TRAVIS_TAG
+    - docker tag $REPO:$COMMIT registry.heroku.com/$HEROKU_APP_NAME/web
+    - docker push $REPO
+    - docker push registry.heroku.com/$HEROKU_APP_NAME/web
+    - heroku container:release web --app $HEROKU_APP_NAME
 notifications:
   email: false
+deploy:
+  api_key:
+    secure: F2i6PedUjokaKJ5KAdgkOBCwnaii4Uat/9w9BIkMxyGbnywuSUdOavNDcPxRcUx/a2a3BiKBz91A6fLisu4MocCjGWp+8Agd3B6kSa7WBz/CWazjKc8YULPIm1RnEF4uTkzc0+5WAM4hr4GvHarGZhzbjt8k7+UftMIYeCrpRdk4Ws7FxOGxqQD8M4XGpIvHfRdi4XPN3z3VaSFae5jmG2UbaMrob120yHtVQYhJMkFl4LND0tNol5hIxFzbFnXiUXNVSdfruxHujGYDBEnNJa0Rja88FN7e60sueMsoDtmYKcw6rl7w/VoFR1V7gqndj/9DQCvt6G9KFEoEC+DyqcX8JSLsa4059s0RMLnAmWXz1QtBZtTbhmpR29+mm+ozfd4PIWdkAQ0WHcExu84kDHF7F9/TX5m2swEDqEi5QG1IBUCXMpRJOzbvao4Sch13z2h6mc9Hy1KucY94NzSPugC+8GwYPQ+cJOAGYCno68LWxBnQUS4gIgZO22aWsYA/li/BdACKVEHRajr0Eiq50VP8s9nQR2BZGPi81xyWK8PtKHvMqRN42NXbY5xLdjHz7QMuMEH8zIAfcsrG5BwCnBvrdpV9nKBoPUUtUZOolTKntL9F1J1MX1WC3pj/FhVMJqGqrGMhXI/ogk1U/XmWpptu13I0DKIGC0SoqMUF6Uc=
